@@ -6,18 +6,12 @@
                       http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
   <!-- Основная индексируемая страница с ВПН -->
-  <url>
-    <loc>https://v2raytun.de/index.html</loc>
-    <lastmod>2025-11-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+      <loc>https://v2raytun.de/home.html</loc>
+      <lastmod>2025-11-28</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>1.0</priority>
+    </url>
+  </urlset>
 
-  <!-- Страница-капча (необязательно добавлять; можно исключить, но если оставляешь — без вреда) -->
-  <url>
-    <loc>https://v2raytun.de/captcha.html</loc>
-    <lastmod>2025-11-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.1</priority>
-  </url>
-</urlset>
