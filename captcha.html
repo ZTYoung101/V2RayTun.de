@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Проверка доступа</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Не даём индексировать капчу, чтобы в поиске была только ВПН-страница -->
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <style>
+    body {
+      margin: 0;
+      background: #0d1117;
+      color: #fff;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+      text-align: center;
+    }
+    #flagOptions img {
+      width: 70px;
+      height: 48px;
+      cursor: pointer;
+      border-radius: 6px;
+      border: 2px solid transparent;
+      transition: transform .2s, border-color .2s;
+    }
+    #flagOptions img:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+<h2 style="margin-bottom:20px;font-weight:600;">
+  Нужно подтвердить, что вы человек.<br>
+  Тыкните на картинку, совпадающую с флагом:
+</h2>
+
+<div id="flagTarget" style="margin-bottom:20px;"></div>
+<p>Доступные варианты:</p>
+<div id="flagOptions" style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;"></div>
+
+<script>
+(function () {
+  const flags = [
+    { name: "canada", src: "assets/flags/canada.png" },
+    { name: "uk", src: "assets/flags/uk.png" },
+    { name: "moldova", src: "assets/flags/moldova.png" },
+    { name: "south_korea", src: "assets/flags/south_korea.png" },
+    { name: "japan", src: "assets/flags/japan.png" },
+    { name: "germany", src: "assets/flags/germany.png" }
+  ];
+
+  // Показываем перевёрнутый образец
+  const correct = flags[Math.floor(Math.random() * flags.length)];
+  const t = document.getElementById("flagTarget");
+  const sample = document.createElement("img");
+  sample.src = correct.src;
+  sample.width = 110;
+  sample.height = 70;
+  sample.alt = "Образец флага";
+  sample.style.transform = "rotate(180deg)";
+  sample.style.border = "2px solid #fff";
+  sample.style.borderRadius = "8px";
+  t.appendChild(sample);
+
+  // Варианты
+  const shuffled = flags.slice().sort(() => Math.random() - 0.5);
+  const opts = document.getElementById("flagOptions");
+
+  shuffled.forEach(flag => {
+    const op = document.createElement("img");
+    op.src = flag.src;
+    op.alt = "Вариант флага";
+    op.addEventListener("click", () => {
+      if (flag.name === correct.name) {
+        // УСПЕХ → переходим на основную страницу
+        window.location.href = "main.html";
+      } else {
+        op.style.borderColor = "red";
+        setTimeout(() => { op.style.borderColor = "transparent"; }, 600);
+      }
+    });
+    opts.appendChild(op);
+  });
+})();
+</script>
+
+</body>
+</html>
