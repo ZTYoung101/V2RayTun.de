@@ -1,109 +1,184 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="utf-8">
   <title>Проверка доступа</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex,nofollow">
-  <meta name="yandex-verification" content="c9adacc91d7194c6" />
+  <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <meta name="color-scheme" content="dark">
+
   <style>
-    body {
-      margin: 0;
-      background: #0d1117;
-      color: #fff;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      flex-direction: column;
-      text-align: center;
+    :root{
+      --bg: rgb(13 17 23);
+      --fg: #ffffff;
+      --ring: #ffffff;
+      --error: #ff3b3b;
+      --radius: 8px;
+      --radius-sm: 6px;
+      --t-fast: .2s;
     }
-    #flagOptions img {
-      width: 70px;
-      height: 48px;
-      cursor: pointer;
-      border-radius: 6px;
-      border: 2px solid transparent;
-      transition: transform .2s, border-color .2s;
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--fg);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      min-height:100dvh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
     }
-    #flagOptions img:hover {
-      transform: scale(1.05);
+
+    .title{
+      margin:0 0 20px 0;
+      font-weight:600;
+      line-height:1.35;
+    }
+
+    .wrap{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:16px;
+    }
+
+    #flagTarget{ margin-bottom:20px; }
+
+    .sample{
+      border:2px solid var(--ring);
+      border-radius:var(--radius);
+      transform:rotate(.5turn); /* 180deg, но иная запись */
+      display:inline-block;
+      vertical-align:middle;
+    }
+
+    #flagOptions{
+      display:flex;
+      gap:15px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+
+    #flagOptions img.option{
+      width:70px;
+      height:48px;
+      cursor:pointer;
+      border-radius:var(--radius-sm);
+      border:2px solid transparent;
+      transition: transform var(--t-fast), border-color var(--t-fast);
+      will-change: transform;
+    }
+    #flagOptions img.option:hover{
+      transform:scale(1.05);
+    }
+
+    /* вспышка ошибки как и раньше (красная рамка на ~0.6с) */
+    @keyframes border-blink {
+      0% { border-color: transparent; }
+      10% { border-color: var(--error); }
+      90% { border-color: var(--error); }
+      100% { border-color: transparent; }
+    }
+    .wrong{
+      animation: border-blink .6s linear 1;
     }
   </style>
-  <!-- Yandex.Metrika counter -->
-<script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105560857', 'ym');
-
-    ym(105560857, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/105560857" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
 </head>
 <body>
+  <div class="wrap">
+    <h2 class="title">
+      Нужно подтвердить, что вы человек.<br>
+      Тыкните на картинку, совпадающую с флагом:
+    </h2>
 
-<h2 style="margin-bottom:20px;font-weight:600;">
-  Нужно подтвердить, что вы человек.<br>
-  Тыкните на картинку, совпадающую с флагом:
-</h2>
+    <div id="flagTarget" aria-live="polite"></div>
+    <p>Доступные варианты:</p>
+    <div id="flagOptions"></div>
+  </div>
 
-<div id="flagTarget" style="margin-bottom:20px;"></div>
-<p>Доступные варианты:</p>
-<div id="flagOptions" style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;"></div>
+  <noscript>Для продолжения включите JavaScript.</noscript>
 
-<script>
-(function () {
-  const flags = [
-    { name: "canada", src: "assets/flags/canada.png" },
-    { name: "uk", src: "assets/flags/uk.png" },
-    { name: "moldova", src: "assets/flags/moldova.png" },
-    { name: "south_korea", src: "assets/flags/south_korea.png" },
-    { name: "japan", src: "assets/flags/japan.png" },
-    { name: "germany", src: "assets/flags/germany.png" }
-  ];
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Константы и данные
+      const FLAGS = [
+        { name: "canada",      src: "assets/flags/canada.png" },
+        { name: "uk",          src: "assets/flags/uk.png" },
+        { name: "moldova",     src: "assets/flags/moldova.png" },
+        { name: "south_korea", src: "assets/flags/south_korea.png" },
+        { name: "japan",       src: "assets/flags/japan.png" },
+        { name: "germany",     src: "assets/flags/germany.png" }
+      ];
 
-  const correct = flags[Math.floor(Math.random() * flags.length)];
-  const t = document.getElementById("flagTarget");
-  const sample = document.createElement("img");
-  sample.src = correct.src;
-  sample.width = 110;
-  sample.height = 70;
-  sample.alt = "Образец флага";
-  sample.style.transform = "rotate(180deg)";
-  sample.style.border = "2px solid #fff";
-  sample.style.borderRadius = "8px";
-  t.appendChild(sample);
+      const $target = document.getElementById("flagTarget");
+      const $options = document.getElementById("flagOptions");
 
-  const shuffled = flags.slice().sort(() => Math.random() - 0.5);
-  const opts = document.getElementById("flagOptions");
+      // Крипто-рандом с fallback на Math.random
+      function randInt(max){
+        if (window.crypto && window.crypto.getRandomValues){
+          const arr = new Uint32Array(1);
+          window.crypto.getRandomValues(arr);
+          return arr[0] % max;
+        }
+        return Math.floor(Math.random() * max);
+      }
 
-  shuffled.forEach(flag => {
-    const op = document.createElement("img");
-    op.src = flag.src;
-    op.alt = "Вариант флага";
-    op.addEventListener("click", () => {
-      if (flag.name === correct.name) {
-        window.location.href = "home.html";
-      } else {
-        op.style.borderColor = "red";
-        setTimeout(() => { op.style.borderColor = "transparent"; }, 600);
+      // Unbiased Fisher–Yates
+      function shuffle(arr){
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--){
+          const j = randInt(i + 1);
+          const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+        }
+        return a;
+      }
+
+      // Выбираем правильный флаг
+      const correct = FLAGS[randInt(FLAGS.length)];
+
+      // Рисуем образец (всё как раньше: 110×70, белая рамка, поворот 180°)
+      const sample = document.createElement("img");
+      sample.className = "sample";
+      sample.src = correct.src;
+      sample.alt = "Образец флага";
+      sample.width = 110;
+      sample.height = 70;
+      sample.decoding = "async";
+      sample.loading = "eager"; // чтобы не ленился образец
+      $target.appendChild(sample);
+
+      // Рисуем варианты
+      for (const flag of shuffle(FLAGS)){
+        const op = document.createElement("img");
+        op.className = "option";
+        op.src = flag.src;
+        op.alt = "Вариант флага";
+        op.decoding = "async";
+        op.loading = "lazy";
+
+        op.addEventListener("click", () => {
+          if (flag.name === correct.name){
+            // поведение идентично исходному
+            window.location.href = "home.html";
+          } else {
+            // визуально тот же кратковременный красный бордер ~0.6с
+            op.classList.remove("wrong"); // перезапуск анимации при повторном клике
+            // принудительный рефлоу
+            void op.offsetWidth;
+            op.classList.add("wrong");
+          }
+        });
+
+        $options.appendChild(op);
       }
     });
-    opts.appendChild(op);
-  });
-})();
-</script>
-
+  </script>
 </body>
 </html>
-
-
-
-
-
