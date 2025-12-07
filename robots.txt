@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Host: v2raytun.de
+Sitemap: https://v2raytun.de/sitemap.xml
+# Crawl-delay: 1
